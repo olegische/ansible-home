@@ -28,14 +28,14 @@ sudo ansible-playbook home.yml --ask-vault-pass
 - nvidia
 
 ## Действия ролей
-Роль nvidia зависит от роли media, которая в свою очередь зависит от роли common.
+Роль **nvidia** зависит от роли **media**, которая в свою очередь зависит от роли **common**.
 
-Действия роли common:
+Действия роли **common**:
 - Обновление репозитория apt и установка пакетов sudo, openssl (для генерации рандомных паролей).
 - Добавляет пользователей в систему (указанных в переменной users).
 - Настраивает файл sudoers для пользователей (см ansible-home/roles/common/{files,templates}/
 
-Роли media устанавливает в систему следующие пакеты:
+Роли **media** устанавливает в систему следующие пакеты:
 - xfce4
 - xfce4-goodies
 - greybird-gtk-theme
@@ -43,11 +43,11 @@ sudo ansible-playbook home.yml --ask-vault-pass
 - breeze-cursor-theme
 - vlc
 
-Роль nvidia устанавливает драйвера Nvidia из репозиториев contrib и non-free. 
+Роль **nvidia** устанавливает драйвера Nvidia из репозиториев contrib и non-free. 
 Для Debian Buster это производится путем установки nvidia-driver.
 После установки драйвера система перезагружается.
 
-Роль work устанавливает в систему пакеты, необходимые для работы. На данный момент это:
+Роль **work** устанавливает в систему пакеты, необходимые для работы. На данный момент это:
 - vim
 - rsync
 - git
