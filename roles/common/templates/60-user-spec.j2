@@ -2,7 +2,5 @@
 {% for user in users %}
 {% if user.role == 'admin' %}
 {{ user.username }}        ALL=(ALL) ALL
-{% else %}
-{{ user.username }}        !/usr/bin/ansible*
 {% endif %}
 {% endfor %}
