@@ -1,6 +1,0 @@
----
-# file: ansible-home/inventories/home/hosts
-
-all:
-  hosts:
-   localhost:
