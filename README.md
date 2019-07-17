@@ -75,7 +75,7 @@ users (либо через --extra-vars, либо в файле ansible-home/hos
 Для пользователей с ролью **admin** будет произведена настройка файла sudoers с 
 правилом **user_name ALL=(ALL) ALL**. Можно в настройке переменной users задать 
 значение nopass ключа sudo для пользователя. Тогда в sudoers будет указано 
-значение Defaults:user_name !authenticate.
+правило Defaults:user_name !authenticate.
 
 Конфигурация позволяет работать от пользователя ansible.
 С помощью плейбука configure-ansible.yml можно периодически рандомить пароль ansible 
