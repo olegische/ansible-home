@@ -18,8 +18,9 @@
   + Генерация SSH ключей (тип rsa, 4096 бит) с passphrase.
   + Настройка SSH клиента для мультиплексирования SSH сессий.
   + Сохранение рандомного пароля в файл /etc/ansible/.ansible_become_pass.yml.
-  + Шифрование файла с паролем программой ansible-vault.
+  + Шифрование созданного файла с паролем программой ansible-vault.
   + Сохранение пароля в файл /etc/ansible/.passwd/ansible.(hostname).
+  + Шифрование созданного файла с паролем программой ansible-vault.
 
 Дальнейшая работа с ansible-playbook производится с параметром --ask-vault-pass
 
