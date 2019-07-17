@@ -1,11 +1,11 @@
-# Homestation
+# Конфигурация домашней станции
 Использую Debian. На системе установлены только системные утилиты.
 
-Запускаем  homestation/scripts/install_ansible.sh для установки Ansible.
+Запускаем  scripts/install_ansible.sh для установки Ansible.
 
 Конфигурируем Ansible:
 ```
-sudo ansible-playbook homestation/ansible-home/configure-ansible.yml
+sudo ansible-playbook configure-ansible.yml
 ```
 Плейбук добавит в систему пользователя ansible, задаст ему рандомный пароль, 
 сохранит его на диск и зашифрует с помощью ansible-vault.
@@ -17,7 +17,7 @@ sudo ansible-playbook homestation/ansible-home/configure-ansible.yml
 
 После выполнения скрипта можно сконфигурировать домашнюю станцию:
 ```
-sudo ansible-playbook homestation/ansible-home/home.yml --ask-vault-pass
+sudo ansible-playbook home.yml --ask-vault-pass
 ```
 
 Для пользователей, если они не присутствуют в системе, будут сконфигурированы рандомные пароли.
