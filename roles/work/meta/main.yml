@@ -1,0 +1,5 @@
+---
+# file: ansible-home/roles/work/meta/main.yml
+
+dependencies:
+  - role: common

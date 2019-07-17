@@ -1,0 +1,37 @@
+---
+# file: ansible-home/roles/common/tasks/sudo.yml
+
+- name: Install sudo configuration
+  block:
+
+# Ansible have constraints, when using synchronization modules.
+# If you want to copy smth on slave host, use passwordless sudo
+# For user ansible 50-defaults edited: authenticate ==> !authenticate
+
+  - name: Copy sudoers file
+    copy:
+      dest: "{{ sudoers_file_path }}"
+      src: sudoers.txt
+      owner: root
+      group: root
+      mode: 0600
+      backup: yes
+    tags:
+      - sudo
+
+  - name: Ensure sudoerd.d exists
+    file:
+      path: "{{ sudoers_dir_path }}"
+      state: directory
+      owner: root
+      group: root
+
+  - name: Install sudoers.d file "{{ item }}"
+    template:
+      dest: "{{ sudoers_dir_path }}/{{ item }}"
+      src: "{{ item }}.j2"
+      owner: root
+      group: root
+      mode: 0600
+  tags:
+    - sudo

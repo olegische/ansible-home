@@ -1,0 +1,5 @@
+---
+# file: ansible-home/roles/common/vars/admins.yml
+
+admins:
+ - { username: ansible, gecos: Ansible service, shell: /bin/bash }

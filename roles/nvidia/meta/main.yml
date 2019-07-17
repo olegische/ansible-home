@@ -1,0 +1,5 @@
+---
+# file: ansible-home/roles/nvidia/meta/main.yml
+
+dependencies:
+  - role: media

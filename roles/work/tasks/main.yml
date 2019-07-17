@@ -1,0 +1,17 @@
+---
+# file: ansible-home/roles/work/tasks/main.yml
+
+- name: Include work vars
+  include_vars:
+    dir: "{{ playbook_dir }}/roles/{{ role_name }}/vars"
+    extensions:
+      - yml
+  tags:
+    - install
+
+- name: Install work packages with install_packages task
+  include_tasks:
+    file: "{{ playbook_dir }}/tasks/install_packages.yml"
+  with_items: "{{ packages_work }}"
+  tags:
+    - install

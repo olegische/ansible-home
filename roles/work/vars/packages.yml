@@ -1,0 +1,9 @@
+---
+# file: ansible-home/roles/workstation/vars/packages.yml
+
+packages_work:
+  - vim
+  - rsync
+  - git
+  - remmina
+  - cups

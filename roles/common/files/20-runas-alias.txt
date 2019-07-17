@@ -1,0 +1,4 @@
+# Runas alias specification
+#Runas_Alias    OP = root, operator
+#Runas_Alias    DB = oracle, sybase
+#Runas_Alias    ADMINGRP = adm, oper

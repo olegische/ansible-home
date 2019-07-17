@@ -1,0 +1,9 @@
+---
+# file: ansible-home/roles/common/vars/sudo.yml
+
+sudo_group: sudo
+sudoers_file_path: /etc/sudoers
+sudoers_dir_path: /etc/sudoers.d
+sudoers_dir_files:
+ - 50-defaults
+ - 60-user-spec

@@ -1,0 +1,11 @@
+---
+# file: ansible-home/home.yml
+
+- name: Create home station
+  hosts: localhost
+  vars_files:
+    - /etc/ansible/.ansible_become_pass.yml
+
+  roles:
+    - work
+    - nvidia

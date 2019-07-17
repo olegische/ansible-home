@@ -1,0 +1,6 @@
+---
+# file: ansible-home/roles/nvidia/handlers/main.yml
+
+- name: Reboot after installing nvidia packages
+  reboot:
+  listen: "restart nvidia machine"

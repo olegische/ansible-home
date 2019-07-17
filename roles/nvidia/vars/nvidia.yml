@@ -1,0 +1,6 @@
+---
+# file: ansible-home/roles/nvidia/vars/nvidia.yml
+
+packages_nvidia:
+  - nvidia-detect
+  - nvidia-driver

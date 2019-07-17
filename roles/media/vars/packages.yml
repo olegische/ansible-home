@@ -1,0 +1,10 @@
+---
+# file: ansible-home/roles/media/vars/packages.yml
+
+packages_media:
+  - xfce4
+  - xfce4-goodies
+  - greybird-gtk-theme
+  - numix-icon-theme
+  - breeze-cursor-theme
+  - vlc

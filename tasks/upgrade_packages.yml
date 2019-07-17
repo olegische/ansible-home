@@ -1,0 +1,17 @@
+---
+# file: ansible-home/roles/common/tasks/upgrade_packages.yml
+
+- name: Update repositories with apt
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+  tags:
+    - update
+
+- name: Update all packages with apt
+  apt:
+    update_cache: yes
+    upgrade: dist
+  when: ansible_facts['os_family'] == "Debian"
+  tags:
+    - upgrade

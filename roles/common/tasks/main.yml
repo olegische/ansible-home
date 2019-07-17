@@ -1,0 +1,44 @@
+---
+# file: ansible-home/roles/common/tasks/main.yml
+
+- name: Include common role vars
+  include_vars:
+    dir: "{{ playbook_dir }}/roles/{{ role_name }}/vars"
+    extensions:
+      - yml
+  tags:
+    - install
+    - users
+    - sudo
+    - update
+    - upgrade
+
+- name: Include upgrade packages tasks
+  include_tasks:
+    file: "{{ playbook_dir }}/tasks/upgrade_packages.yml"
+  tags:
+    - update
+    - upgrade
+
+- name: Include install packages tasks
+  include_tasks:
+    file: "{{ playbook_dir }}/tasks/install_packages.yml"
+  with_items: "{{ packages_common }}"
+  tags:
+    - install
+
+- name: Include add user
+  include_tasks:
+    file: "{{ playbook_dir }}/tasks/users.yml"
+  when: centralized_authentification == false
+  with_items:
+    - "{{ users }}"
+  tags:
+    - users
+
+- name: Include sudo tasks
+  include_tasks: sudo.yml
+  with_items:
+    - "{{ sudoers_dir_files }}"
+  tags:
+    - sudo
