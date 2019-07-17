@@ -4,7 +4,7 @@
 ## Последовательность запуска плейбуков
 Запускаем bash script для установки Ansible.
 ```
-# scripts/install_ansible.sh
+# ./scripts/install_ansible.sh
 ```
 Конфигурируем Ansible:
 ```
