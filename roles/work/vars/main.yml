@@ -1,5 +1,5 @@
 ---
-# file: ansible-home/roles/workstation/vars/packages.yml
+# file: ansible-home/roles/work/vars/main.yml
 
 packages_work:
   - vim

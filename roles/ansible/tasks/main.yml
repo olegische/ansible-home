@@ -1,0 +1,21 @@
+---
+# file: ansible-home/roles/ansible/tasks/main.yml
+
+- name: Install {{ role_name }} packages
+  package:
+    name: "{{ packages_ansible }}"
+    state: latest
+  tags:
+    - install
+
+- include: "{{ playbook_dir }}/tasks/users.yml"
+  with_items:
+    - "{{ users }}"
+  tags:
+    - users
+
+- include: ansible.yml
+  with_items:
+    - "{{ users }}"
+  tags:
+    - ansible

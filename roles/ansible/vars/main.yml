@@ -1,0 +1,5 @@
+---
+# file: ansible-home/roles/ansible/vars/main.yml
+packages_ansible:
+  - openssl
+  - openssh-client

@@ -1,6 +1,0 @@
----
-# file: ansible-home/roles/common/vars/packages.yml
-
-packages_common:
-  - sudo
-  - openssl

@@ -1,5 +1,5 @@
 ---
-# file: ansible-home/roles/media/vars/packages.yml
+# file: ansible-home/roles/media/vars/main.yml
 
 packages_media:
   - xfce4
@@ -8,3 +8,5 @@ packages_media:
   - numix-icon-theme
   - breeze-cursor-theme
   - vlc
+  - tor
+  - transmission

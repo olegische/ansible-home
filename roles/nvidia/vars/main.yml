@@ -1,5 +1,5 @@
 ---
-# file: ansible-home/roles/nvidia/vars/nvidia.yml
+# file: ansible-home/roles/nvidia/vars/main.yml
 
 packages_nvidia:
   - nvidia-detect

@@ -1,9 +1,0 @@
----
-# file: ansible-home/tasks/install_packages.yml
-
-- name: Install packages "{{ item }}"
-  package:
-    name: "{{ item }}"
-    state: present
-  tags:
-    - install

@@ -7,5 +7,5 @@ ansible_become_pass: false
 vault_password_file: false
 
 users:
- - { role: admin, sudo: nopass, username: ansible, gecos: Ansible service, shell: /bin/bash }
+ - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }
  - { role: admin, sudo: pass, username: olegdeb, gecos: Oleg Rom, shell: /bin/bash }

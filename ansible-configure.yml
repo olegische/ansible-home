@@ -7,10 +7,7 @@
   vars:
     centralized_authentification: false
     users:
-      - { role: admin, sudo: nopass, username: ansible, gecos: Ansible service, shell: /bin/bash }
-    packages_common:
-      - openssl
-      - openssh-client
+      - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }
 
   vars_prompt:
   - name: "ssh_passphrase"
@@ -18,24 +15,5 @@
     private: yes
     confirm: yes
 
-  tasks:
-  - name: Install packages "{{ item }}"
-    package:
-      name: "{{ item }}"
-      state: present
-    with_items:
-      - "{{ packages_common }}"
-    tags:
-      - install
-
-  - include: "{{ playbook_dir }}/tasks/users.yml"
-    with_items:
-      - "{{ users }}"
-    tags:
-      - users
-
-  - include: "{{ playbook_dir }}/tasks/ansible.yml"
-    with_items:
-      - "{{ users }}"
-    tags:
-      - ansible
+  roles:
+    - ansible

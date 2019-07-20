@@ -1,14 +1,6 @@
 ---
 # file: ansible-home/roles/nvidia/tasks/main.yml
 
-- name: Include nvidia role vars
-  include_vars:
-    dir: "{{ playbook_dir }}/roles/{{ role_name }}/vars"
-    extensions:
-      - yml
-  tags:
-    - nvidia
-
 - name: Include nvidia tasks
   include_tasks: nvidia.yml
   tags:

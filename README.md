@@ -10,18 +10,9 @@ CentOS.
 ```
 Настраиваем Ansible с помощью плейбука:
 ```
-# ansible-playbook configure-ansible.yml
+# ansible-playbook ansible-configure.yml
 ```
-Действия плейбука configure-ansible.yml:
-- Установка пакетов openssh-client и openssl (для генерации рандомных паролей).
-- Добавление в систему пользователя ansible.
-+ Настройки для пользоваетля ansible
-  + Генерация SSH ключей (тип rsa, 4096 бит) с passphrase.
-  + Настройка SSH клиента для мультиплексирования SSH сессий.
-  + Сохранение рандомного пароля в файл /etc/ansible/.ansible_become_pass.yml.
-  + Шифрование созданного файла с паролем программой ansible-vault.
-  + Сохранение пароля в файл /etc/ansible/.passwd/ansible.(hostname).
-  + Шифрование созданного файла с паролем программой ansible-vault.
+Плейбук ansible-configure.yml задает станции роль ansible.
 
 Дальнейшая работа с ansible-playbook производится с параметром --ask-vault-pass
 
@@ -44,6 +35,15 @@ users (либо через --extra-vars, либо в файле ansible-home/hos
 - nvidia
 
 ## Действия ролей
+Действия роли **ansible**:
+- Установка пакетов openssh-client и openssl (для генерации рандомных паролей).
+- Добавление в систему пользователя ansible.
++ Настройки для пользоваетля ansible
+  + Генерация SSH ключей (тип rsa, 4096 бит) с passphrase.
+  + Настройка SSH клиента для мультиплексирования SSH сессий.
+  + Сохранение пароля в файл /etc/ansible/.passwd/ansible.<inventory_hostname>.yml.
+  + Шифрование созданного файла с паролем программой ansible-vault.
+
 Роль **nvidia** зависит от роли **media**, которая в свою очередь зависит от роли **common**.
 
 Действия роли **common**:
@@ -86,7 +86,6 @@ users (либо через --extra-vars, либо в файле ansible-home/hos
 необходимо указать пароль для зашифрованного файла с паролем пользователя 
 ansible на сервере Ansible. Во-вторых, необходимо указать passphrase для ключа 
 при SSH соединении с клиентом сервера Ansible. Работа на клиенте производится 
-от пользователя ansible. 
-Файлы с паролями пользователей ansible на удаленных машинах хранятся в папке 
-/etc/ansible/.passwd/ansible.hostname, где вместо hostname используется имя машины 
-клиента, указанное в файле hosts.
+от пользователя ansible.
+Файлы с паролями пользователей ansible на клиентах хранятся в папке 
+/etc/ansible/.passwd/ansible.<inventory_hostname>.yml.

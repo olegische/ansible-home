@@ -1,17 +1,9 @@
 ---
 # file: ansible-home/roles/media/tasks/main.yml
 
-- name: Include media role vars
-  include_vars:
-    dir: "{{ playbook_dir }}/roles/{{ role_name }}/vars"
-    extensions:
-      - yml
-  tags:
-    - install
-
-- name: Install media packages with install_packages task
-  include_tasks:
-    file: "{{ playbook_dir }}/tasks/install_packages.yml"
-  with_items: "{{ packages_media }}"
+- name: Install {{ role_name }} packages
+  package:
+    name: "{{ packages_media }}"
+    state: latest
   tags:
     - install

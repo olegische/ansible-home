@@ -1,5 +1,9 @@
 ---
-# file: ansible-home/roles/common/vars/sudo.yml
+# file: ansible-home/roles/common/vars/main.yml
+
+packages_common:
+  - sudo
+  - openssl
 
 sudo_group: sudo
 sudoers_file_path: /etc/sudoers

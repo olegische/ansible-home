@@ -1,0 +1,68 @@
+---
+# file: ansible-home/roles/common/tasks/ansible.yml
+
+- name: Update '{{ item.username }}' user password
+  user:
+    name: "{{ item.username }}"
+    password: "{{ user_passwd | password_hash('sha512') }}"
+    update_password: always
+  register: changepasswrd
+
+- name: Generate '{{ item.username }}' user ssh keys
+  user:
+    name: "{{ item.username }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 4096
+    ssh_key_type: rsa
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_passphrase: "{{ ssh_passphrase }}"
+
+- name: Configure ssh-client for '{{ item.username }}' user
+  copy:
+    dest: "/home/{{ item.username }}/.ssh/config"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0644
+    content: |
+      Host *
+        Compression yes
+        ServerAliveInterval 30m
+        ServerAliveCountMax 1
+        ControlMaster auto
+        ControlPath ~/.ssh/cm_socket/%r@%h:%p
+        ControlPersist 30m
+
+- name: Save ansible password block
+  block:
+  - name: Create ansible dir
+    file:
+      path: /etc/ansible/.passwd
+      state: directory
+      owner: root
+      group: root
+
+  - name: Set '{{ item.username }}' user password file variable
+    set_fact:
+      user_passwd_path: "/etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}.yml"
+      cacheable: no
+
+  - name: Save remote '{{ item.username }}' user password
+    copy:
+      dest: "{{ user_passwd_path }}"
+      content: |
+        ---
+        # file: {{ user_passwd_path }}
+        ansible_become_pass: {{ user_passwd }}
+
+  - name: Encrypt '{{ item.username }}' user password file
+    command: "ansible-vault encrypt {{ user_passwd_path }}"
+
+  - name: Set permission to '{{ item.username }}' user password file
+    file:
+      path: "{{ user_passwd_path }}"
+      owner: "{{ item.username }}"
+      group: "{{ item.username }}"
+      mode: 0400
+# END Save ansible password block
+  when: changepasswrd.changed and item.username == 'ansible'
+  delegate_to: 127.0.0.1

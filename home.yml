@@ -4,7 +4,7 @@
 - name: Create home station
   hosts: localhost
   vars_files:
-    - /etc/ansible/.ansible_become_pass.yml
+    - "/etc/ansible/.passwd/ansible.{{ inventory_hostname }}.yml"
 
   roles:
     - work

@@ -1,64 +1,59 @@
 ---
 # file: ansible-home/roles/common/tasks/users.yml
 
-- name: Add user block
-  block:
-  - name: Generate '{{ item.username }}' user password
-    shell: openssl rand -base64 48
-    register: user_passwd_reg
+- name: Generate '{{ item.username }}' user password
+  shell: openssl rand -base64 48
+  register: user_passwd_reg
 
-  - name: Set '{{ item.username }}' user password variable
-    set_fact:
-      user_passwd: "{{ user_passwd_reg.stdout }}"
-      cacheable: no
-    when: user_passwd_reg is succeeded
-    register: password_fact_set
+- name: Set '{{ item.username }}' user password variable
+  set_fact:
+    user_passwd: "{{ user_passwd_reg.stdout }}"
+    cacheable: no
+  when: user_passwd_reg is succeeded
+  register: password_fact_set
     
-  - name: Add user '{{ item.username }}'
-    user:
-      name: "{{ item.username }}"
-      comment: "{{ item.gecos }}"
-      shell: "{{ item.shell }}"
-      create_home: yes
-      password: "{{ user_passwd | password_hash('sha512') }}"
-      update_password: on_create
-    when: password_fact_set is succeeded
-    register: adduser
+- name: Add user '{{ item.username }}'
+  user:
+    name: "{{ item.username }}"
+    comment: "{{ item.gecos }}"
+    shell: "{{ item.shell }}"
+    create_home: yes
+    password: "{{ user_passwd | password_hash('sha512') }}"
+    update_password: on_create
+  when: password_fact_set is succeeded
+  register: adduser
 
-  - name: Check '{{ item.username }}' home dir exists
-    stat:
-      path: "/home/{{ item.username }}"
-    register: home_dir_stat
+- name: Check '{{ item.username }}' home dir exists
+  stat:
+    path: "/home/{{ item.username }}"
+  register: home_dir_stat
 
-  - name: Copy bashrc and vimrc for user '{{ item.username }}'
+- name: Copy bashrc and vimrc for user '{{ item.username }}'
+  copy:
+    dest: "/home/{{ item.username }}/.{{ copy_item }}"
+    src: "{{ copy_item }}.txt"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0644
+    backup: yes
+  when: home_dir_stat.stat.exists and item.username != 'ansible'
+  with_items:
+    - [ 'bashrc', 'vimrc' ]
+  loop_control:
+    loop_var: copy_item
+
+- name: Save remote ansible password block
+  block:
+  - name: Save remote '{{ item.username }}' user password
     copy:
-      dest: "/home/{{ item.username }}/.{{ copy_item }}"
-      src: "{{ copy_item }}.txt"
-      owner: "{{ item.username }}"
-      group: "{{ item.username }}"
-      mode: 0644
-      backup: yes
-    when: home_dir_stat.stat.exists and item.username != 'ansible'
-    with_items:
-      - [ 'bashrc', 'vimrc' ]
-    loop_control:
-      loop_var: copy_item
-
-  - name: Save remote ansible password block
-    block:
-    - name: Save remote '{{ item.username }}' user password
-      copy:
-        dest: "/etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
-        owner: "root"
-        group: "root"
-        mode: 0400
-        content: |
-          {{ user_passwd }}
+      dest: "/etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
+      owner: "root"
+      group: "root"
+      mode: 0400
+      content: |
+        {{ user_passwd }}
 # END Save ansible password block
-    - name: Encrypt '{{ item.username }}' user password file
-      command: "ansible-vault encrypt /etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
-    when: adduser.changed and item.username == 'ansible'
-    delegate_to: 127.0.0.1
-# end of Add user block
-  tags:
-    - users
+  - name: Encrypt '{{ item.username }}' user password file
+    command: "ansible-vault encrypt /etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
+  when: adduser.changed and item.username == 'ansible'
+  delegate_to: 127.0.0.1

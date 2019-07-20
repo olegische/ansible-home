@@ -1,62 +1,52 @@
 ---
 # file: ansible-home/roles/nvidia/tasks/nvidia.yml
 
-- name: Nvidia configuration block
-  block:
-  - name: Set nvidia apt source list path variable
-    set_fact:
-      nvidia_list_path: /etc/apt/sources.list.d/nvidia.list
+- name: Set nvidia apt source list path variable
+  set_fact:
+    nvidia_list_path: /etc/apt/sources.list.d/nvidia.list
 
-  - name: Add contrib and non-free sources
-    copy:
-      dest: "{{ nvidia_list_path }}"
-      content: |
-          deb http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
-          deb-src http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
-    register: sources_edited
-    tags:
-      - addrepo
-
-  - name: Update repositories after adding contrib and non-free sources with upgrade_packages task
-    include_tasks:
-      file: "{{ playbook_dir }}/tasks/upgrade_packages.yml"
-      apply:
-        tags:
-          - update
-    when: sources_edited is succeeded
-    register: repos_updated
-    tags:
-      - update
-
-  - name: Install nvidia packages
-    package:
-      name: "{{ item }}"
-      state: present
-    with_items: "{{ packages_nvidia }}"
-    when: repos_updated is succeeded
-    notify: 
-      - "restart nvidia machine"
-    tags:
-      - install
-
-  - name: Remove contrib and non-free sources
-    file:
-      path: "{{ nvidia_list_path }}"
-      state: absent
-    when: sources_edited is succeeded
-    register: sources_origin
-    tags:
-      - remrepo
-
-  - name: Update repositories after removing contrib and non-free sources with upgrade_packages task
-    include_tasks:
-      file: "{{ playbook_dir }}/tasks/upgrade_packages.yml"
-      apply:
-        tags:
-          - update
-    when: sources_origin is succeeded
-    tags:
-      - update
-# END Nvidia configuration block
+- name: Add contrib and non-free sources
+  copy:
+    dest: "{{ nvidia_list_path }}"
+    content: |
+        deb http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
+        deb-src http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
+  register: sources_edited
   tags:
-    - nvidia
+    - repoadd
+
+- name: Update apt repositories. Contrib non-free added.
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian" and sources_edited is succeeded
+  register: repos_updated
+  tags:
+    - update
+
+- name: Install nvidia packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages_nvidia }}"
+  when: repos_updated is succeeded
+  notify: 
+    - "restart nvidia machine"
+  tags:
+    - install
+
+- name: Remove contrib and non-free sources
+  file:
+    path: "{{ nvidia_list_path }}"
+    state: absent
+  when: sources_edited is succeeded
+  register: sources_origin
+  tags:
+    - reporemove
+
+- name: Update apt repositories. Contrib non-free removed.
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian" and sources_origin is succeeded
+  register: repos_updated
+  tags:
+    - update
