@@ -4,15 +4,13 @@
 - name: Update repositories with apt
   apt:
     update_cache: yes
-  when: ansible_facts['os_family'] == "Debian"
   tags:
     - update
 
-- name: Update all packages with apt
+- name: Upgrade all packages with apt
   apt:
     update_cache: yes
     upgrade: dist
-  when: ansible_facts['os_family'] == "Debian"
   tags:
     - upgrade
 
@@ -23,17 +21,23 @@
   tags:
     - install
 
-- name: Include add user
-  include_tasks:
-    file: "{{ playbook_dir }}/tasks/users.yml"
-  when: centralized_authentification == false
+- include: "{{ playbook_dir }}/tasks/users.yml"
   with_items:
     - "{{ users }}"
   tags:
     - users
 
+- include: dot-files.yml
+  when: outer_item.username != 'ansible'
+  with_items:
+    - "{{ users }}"
+  loop_control:
+    loop_var: outer_item
+  tags:
+    - dotfiles
+
 - name: Include sudo tasks
-  include_tasks: sudo.yml
+  include: sudo.yml
   with_items:
     - "{{ sudoers_dir_files }}"
   tags:

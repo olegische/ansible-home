@@ -1,0 +1,20 @@
+---
+# file: ansible-home/roles/common/tasks/dot-files.yml
+
+- name: Check '{{ outer_item.username }}' home dir exists
+  stat:
+    path: "/home/{{ outer_item.username }}"
+  register: home_dir_stat
+
+- name: Copy bashrc and vimrc for user '{{ outer_item.username }}'
+  copy:
+    dest: "/home/{{ outer_item.username }}/.{{ item }}"
+    src: "{{ item }}.txt"
+    owner: "{{ outer_item.username }}"
+    group: "{{ outer_item.username }}"
+    mode: 0644
+    backup: yes
+  when: home_dir_stat.stat.exists
+  with_items:
+    - bashrc
+    - vimrc

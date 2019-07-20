@@ -8,13 +8,23 @@
   tags:
     - install
 
+- name: Create ansible dir
+  file:
+    path: /etc/ansible/.passwd
+    state: directory
+    owner: root
+    group: root
+  tags:
+    - ansible
+
 - include: "{{ playbook_dir }}/tasks/users.yml"
   with_items:
     - "{{ users }}"
   tags:
     - users
 
-- include: ansible.yml
+- include: ssh-keys.yml
+  when: item.username == 'ansible'
   with_items:
     - "{{ users }}"
   tags:

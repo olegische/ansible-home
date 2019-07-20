@@ -1,0 +1,26 @@
+---
+# file: ansible-home/roles/common/tasks/ssh-keys.yml
+
+- name: Generate '{{ item.username }}' user ssh keys
+  user:
+    name: "{{ item.username }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 4096
+    ssh_key_type: rsa
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_passphrase: "{{ ssh_passphrase }}"
+
+- name: Configure ssh-client for '{{ item.username }}' user
+  copy:
+    dest: "/home/{{ item.username }}/.ssh/config"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0644
+    content: |
+      Host *
+        Compression yes
+        ServerAliveInterval 30m
+        ServerAliveCountMax 1
+        ControlMaster auto
+        ControlPath ~/.ssh/cm_socket/%r@%h:%p
+        ControlPersist 30m

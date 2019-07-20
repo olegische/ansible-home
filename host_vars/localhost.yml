@@ -1,5 +1,5 @@
 ---
-# file: ansible-home/host_vars/localhost/main.yml
+# file: ansible-home/host_vars/localhost.yml
 
 ansible_user: root
 ansible_connection: local

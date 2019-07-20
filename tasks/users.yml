@@ -21,39 +21,42 @@
     password: "{{ user_passwd | password_hash('sha512') }}"
     update_password: on_create
   when: password_fact_set is succeeded
-  register: adduser
 
-- name: Check '{{ item.username }}' home dir exists
-  stat:
-    path: "/home/{{ item.username }}"
-  register: home_dir_stat
+- name: Update '{{ item.username }}' user password
+  user:
+    name: "{{ item.username }}"
+    password: "{{ user_passwd | password_hash('sha512') }}"
+    update_password: always
+  when: item.username == 'ansible'
+  tags:
+    - ansible
 
-- name: Copy bashrc and vimrc for user '{{ item.username }}'
-  copy:
-    dest: "/home/{{ item.username }}/.{{ copy_item }}"
-    src: "{{ copy_item }}.txt"
-    owner: "{{ item.username }}"
-    group: "{{ item.username }}"
-    mode: 0644
-    backup: yes
-  when: home_dir_stat.stat.exists and item.username != 'ansible'
-  with_items:
-    - [ 'bashrc', 'vimrc' ]
-  loop_control:
-    loop_var: copy_item
-
-- name: Save remote ansible password block
+- name: Save client ansible password block
   block:
+  - name: Set '{{ item.username }}' user password file variable
+    set_fact:
+      user_passwd_path: "/etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}.yml"
+      cacheable: no
+
   - name: Save remote '{{ item.username }}' user password
     copy:
-      dest: "/etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
-      owner: "root"
-      group: "root"
-      mode: 0400
+      dest: "{{ user_passwd_path }}"
       content: |
-        {{ user_passwd }}
-# END Save ansible password block
+        ---
+        # file: {{ user_passwd_path }}
+        ansible_become_pass: {{ user_passwd }}
+
   - name: Encrypt '{{ item.username }}' user password file
-    command: "ansible-vault encrypt /etc/ansible/.passwd/{{ item.username }}.{{ inventory_hostname }}"
-  when: adduser.changed and item.username == 'ansible'
+    command: "ansible-vault encrypt {{ user_passwd_path }}"
+
+  - name: Set permission to '{{ item.username }}' user password file
+    file:
+      path: "{{ user_passwd_path }}"
+      owner: "{{ item.username }}"
+      group: "{{ item.username }}"
+      mode: 0400
+# END Save client ansible password block
+  when: item.username == 'ansible'
   delegate_to: 127.0.0.1
+  tags:
+    - ansible

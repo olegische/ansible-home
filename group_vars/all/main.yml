@@ -1,6 +1,0 @@
----
-# file: # ansible-home/group_vars/all/main.yml
-
-ansible_become: yes
-ansible_become_method: sudo
-ansible_become_pass: "{{ ansible_user_password }}"

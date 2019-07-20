@@ -1,7 +1,0 @@
----
-# file: ansible-home/roles/common/defaults/main.yml
-
-centralized_authentification: false
-
-users:
- - { role: admin, sudo: nopass, username: ansible, gecos: Ansible service, shell: /bin/bash }
