@@ -1,0 +1,18 @@
+---
+# file: ansible-home/roles/ansible/tasks/vault-pass.yml
+
+- name: Vault id block
+  block:
+  - name: Generate '{{ item }}' vault_id password
+    shell: openssl rand -base64 48
+    register: vault_passwd_reg
+
+  - name: Create vault_id file
+    copy:
+      dest: "/home/ansible/.vault_pass/{{ item }}_pass"
+      content: "{{ vault_passwd_reg.stdout }}"
+      owner: ansible
+      group: ansible
+      mode: 0400
+  tags:
+    - vaultid

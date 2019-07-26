@@ -1,7 +1,6 @@
 ---
 # file: ansible-home/roles/nvidia/tasks/main.yml
 
-- name: Include nvidia tasks
-  include_tasks: nvidia.yml
+- include: nvidia.yml
   tags:
     - nvidia

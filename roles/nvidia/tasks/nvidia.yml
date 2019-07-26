@@ -1,52 +1,57 @@
 ---
 # file: ansible-home/roles/nvidia/tasks/nvidia.yml
 
-- name: Set nvidia apt source list path variable
-  set_fact:
-    nvidia_list_path: /etc/apt/sources.list.d/nvidia.list
+- name: Install Nvidia drivers block
+  block:
+  - name: Set nvidia apt source list path variable
+    set_fact:
+      nvidia_list_path: /etc/apt/sources.list.d/nvidia.list
 
-- name: Add contrib and non-free sources
-  copy:
-    dest: "{{ nvidia_list_path }}"
-    content: |
-        deb http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
-        deb-src http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
-  register: sources_edited
-  tags:
-    - repoadd
+  - name: Add contrib and non-free sources
+    copy:
+      dest: "{{ nvidia_list_path }}"
+      content: |
+          deb http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
+          deb-src http://deb.debian.org/debian/ {{ ansible_facts['lsb']['codename'] }} contrib non-free
+    register: sources_edited
+    tags:
+      - repoadd
 
-- name: Update apt repositories. Contrib non-free added.
-  apt:
-    update_cache: yes
-  when: ansible_facts['os_family'] == "Debian" and sources_edited is succeeded
-  register: repos_updated
-  tags:
-    - update
+  - name: Update apt repositories. Contrib non-free added.
+    apt:
+      update_cache: yes
+    when: ansible_facts['os_family'] == "Debian" and sources_edited is succeeded
+    register: repos_updated
+    tags:
+      - update
 
-- name: Install nvidia packages
-  package:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ packages_nvidia }}"
-  when: repos_updated is succeeded
-  notify: 
-    - "restart nvidia machine"
-  tags:
-    - install
+  - name: Install nvidia packages
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages_nvidia }}"
+    when: repos_updated is succeeded
+    notify: 
+      - "restart nvidia machine"
+    tags:
+      - install
 
-- name: Remove contrib and non-free sources
-  file:
-    path: "{{ nvidia_list_path }}"
-    state: absent
-  when: sources_edited is succeeded
-  register: sources_origin
-  tags:
-    - reporemove
+  - name: Remove contrib and non-free sources
+    file:
+      path: "{{ nvidia_list_path }}"
+      state: absent
+    when: sources_edited is succeeded
+    register: sources_origin
+    tags:
+      - reporemove
 
-- name: Update apt repositories. Contrib non-free removed.
-  apt:
-    update_cache: yes
-  when: ansible_facts['os_family'] == "Debian" and sources_origin is succeeded
-  register: repos_updated
+  - name: Update apt repositories. Contrib non-free removed.
+    apt:
+      update_cache: yes
+    when: ansible_facts['os_family'] == "Debian" and sources_origin is succeeded
+    register: repos_updated
+    tags:
+      - update
+# END Install Nvidia drivers block
   tags:
-    - update
+    - nvidia

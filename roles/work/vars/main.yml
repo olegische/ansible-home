@@ -7,3 +7,5 @@ packages_work:
   - git
   - remmina
   - cups
+  - tmux
+  - curl

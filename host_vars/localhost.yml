@@ -4,7 +4,6 @@
 ansible_user: root
 ansible_connection: local
 ansible_become_pass: false
-vault_password_file: false
 
 users:
  - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }

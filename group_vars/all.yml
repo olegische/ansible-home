@@ -1,9 +1,15 @@
 ---
 # file: ansible-home/group_vars/all.yml
 
-ansible_become: yes
-ansible_become_method: sudo
-ansible_become_pass: "{{ ansible_user_password }}"
+#ansible_become: yes
+#ansible_become_method: sudo
+#ansible_become_pass: "{{ ansible_user_password }}"
 
 users:
   - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }
+
+vault_id_labels:
+  - prov
+  - dev
+  - stage
+  - prod

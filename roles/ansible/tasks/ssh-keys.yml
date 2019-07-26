@@ -1,6 +1,10 @@
 ---
 # file: ansible-home/roles/common/tasks/ssh-keys.yml
 
+- name: Set fact ssh socket dir
+  set_fact:
+    ssh_socket_dir: .ssh/cm_socket
+
 - name: Generate '{{ item.username }}' user ssh keys
   user:
     name: "{{ item.username }}"
@@ -22,5 +26,12 @@
         ServerAliveInterval 30m
         ServerAliveCountMax 1
         ControlMaster auto
-        ControlPath ~/.ssh/cm_socket/%r@%h:%p
+        ControlPath ~/{{ ssh_socket_dir }}/%r@%h:%p
         ControlPersist 30m
+
+- name: Create ssh socket directory
+  file:
+    state: directory
+    path: "/home/{{ item.username }}/{{ ssh_socket_dir }}/"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"

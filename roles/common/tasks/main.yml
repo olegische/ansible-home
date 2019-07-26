@@ -1,23 +1,10 @@
 ---
 # file: ansible-home/roles/common/tasks/main.yml
 
-- name: Update repositories with apt
-  apt:
-    update_cache: yes
-  tags:
-    - update
-
-- name: Upgrade all packages with apt
-  apt:
-    update_cache: yes
-    upgrade: dist
-  tags:
-    - upgrade
-
 - name: Install {{ role_name }} packages
   package:
     name: "{{ packages_common }}"
-    state: present
+    state: latest
   tags:
     - install
 
@@ -27,6 +14,12 @@
   tags:
     - users
 
+- include: sudo.yml
+  with_items:
+    - "{{ sudoers_dir_files }}"
+  tags:
+    - sudo
+
 - include: dot-files.yml
   when: outer_item.username != 'ansible'
   with_items:
@@ -35,10 +28,3 @@
     loop_var: outer_item
   tags:
     - dotfiles
-
-- name: Include sudo tasks
-  include: sudo.yml
-  with_items:
-    - "{{ sudoers_dir_files }}"
-  tags:
-    - sudo

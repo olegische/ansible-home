@@ -29,3 +29,18 @@
     - "{{ users }}"
   tags:
     - ansible
+
+- name: Create vault pass dir
+  file:
+    path: /home/ansible/.vault_pass
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: 0700
+  tags:
+    - vaultid
+
+- include: vault-pass.yml
+  with_items: "{{ vault_id_labels }}"
+  tags:
+    - vaultid
