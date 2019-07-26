@@ -47,7 +47,7 @@ users (либо через --extra-vars, либо в файле ansible-home/hos
   + Для пользователя ansible на удаленных машинах пароли шифруются с помощью vault-id лейбла prov, 
     т.к. выполнение плейбуков в приложениях типа vagrant при запуске сразу нескольких 
     машин не дает адекватного интерфейса для ввода пароля vault.
-  + Создаются пароли vault-id лейблов prov, dev, stage, prod по адресу /home/ansible/.vault_pass/<label>_pass
+  + Создание паролей vault-id лейблов prov, dev, stage, prod по адресу /home/ansible/.vault_pass/<label>_pass
 
 Роль **nvidia** зависит от роли **media**, которая в свою очередь зависит от роли **common**.
 
