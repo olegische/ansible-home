@@ -1,0 +1,16 @@
+---
+# file: ansible-home/samba.yml
+
+- name: Create samba server
+  hosts: localhost
+
+  vars:
+    samba_users:
+      - username: smbuser
+        gecos: Samba service
+        shell: /usr/sbin/nologin
+        home: no
+        update_pass: always
+
+  roles:
+    - samba

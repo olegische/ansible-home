@@ -1,0 +1,39 @@
+---
+# file: ansible-home/create-new-role.yml
+
+- name: Create dirs for new role
+  hosts: localhost
+
+  vars:
+    role_dir_list:
+      - defaults
+      - files
+      - handlers
+      - meta
+      - tasks
+      - templates
+      - vars
+
+  vars_prompt:
+  - name: "new_role_name"
+    prompt: "New role name"
+    private: no
+    confirm: no
+
+  tasks:
+  - name: Create '{{ new_role_name }}' role dirs
+    file:
+      path: "{{ playbook_dir }}/roles/{{ new_role_name }}/{{ item }}"
+      state: directory
+    with_items:
+      - "{{ role_dir_list }}"
+
+  - name: Create '{{ new_role_name }}' main ymls
+    copy:
+      dest: "{{ playbook_dir }}/roles/{{ new_role_name }}/{{ item }}/main.yml"
+      content: |
+        ---
+        # file: {{ playbook_dir | basename }}/roles/{{ new_role_name }}/{{ item }}/main.yml
+    when: item != 'files' and item != 'templates'
+    with_items:
+      - "{{ role_dir_list }}"

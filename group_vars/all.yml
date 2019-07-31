@@ -6,7 +6,13 @@
 #ansible_become_pass: "{{ ansible_user_password }}"
 
 users:
-  - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }
+  - username: ansible
+    role: admin
+    sudo: pass
+    gecos: Ansible service
+    shell: /bin/bash
+    home: yes
+    update_pass: always
 
 vault_id_labels:
   - prov

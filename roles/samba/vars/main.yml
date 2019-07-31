@@ -1,0 +1,10 @@
+---
+# file: ansible-home/roles/samba/vars/main.yml
+
+packages_samba:
+  - samba
+
+samba_services:
+  - smbd
+
+samba_conf_file: /etc/samba/smb.conf

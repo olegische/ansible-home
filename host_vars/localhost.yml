@@ -1,10 +1,22 @@
 ---
 # file: ansible-home/host_vars/localhost.yml
 
-ansible_user: root
+#ansible_user: root
 ansible_connection: local
 ansible_become_pass: false
 
 users:
- - { role: admin, sudo: pass, username: ansible, gecos: Ansible service, shell: /bin/bash }
- - { role: admin, sudo: pass, username: olegdeb, gecos: Oleg Rom, shell: /bin/bash }
+  - username: ansible
+    role: admin
+    sudo: pass
+    gecos: Ansible service
+    shell: /bin/bash
+    home: yes
+    update_pass: always
+  - username: olegdeb
+    role: admin
+    sudo: pass
+    gecos: Oleg Rom
+    shell: /bin/bash
+    home: yes
+    update_pass: on_create

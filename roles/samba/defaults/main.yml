@@ -1,0 +1,24 @@
+---
+# file: ansible-home/roles/samba/defaults/main.yml
+
+samba_workgroup: 'WORKGROUP'
+samba_log: '/var/log/samba/log.%m'
+samba_log_size: 5000
+samba_log_level: 0
+samba_interfaces:
+ - "{{ ansible_facts['default_ipv4']['interface'] }}"
+ - lo
+samba_load_homes: false
+samba_shares:
+  - name: 'smb'
+    comment: 'Samba share'
+    path: '/srv/smb'
+    browsable: 'yes'
+    create_mask: '0775'
+    directory_mask: '0775'
+    writable: 'yes'
+    guest_ok: 'yes'
+
+samba_bind_interfaces_only: 'no'
+samba_dns_proxy: 'no'
+samba_wins_support: 'yes'

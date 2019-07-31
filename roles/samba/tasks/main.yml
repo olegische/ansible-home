@@ -1,0 +1,55 @@
+---
+# file: ansible-home/roles/samba/tasks/main.yml
+
+- name: Install {{ role_name }} packages
+  package:
+    name: "{{ packages_samba }}"
+    state: latest
+  tags:
+    - install
+
+- include: "{{ playbook_dir }}/tasks/users.yml"
+  with_items:
+    - "{{ samba_users }}"
+  tags:
+    - users
+
+- name: Create share path
+  file:
+    path: "{{ samba_shares[0].path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+
+- name: Samba configuration
+  template:
+    dest: "{{ samba_conf_file }}"
+    src: smb.conf.j2
+    validate: 'testparm -s %s'
+    backup: yes
+  notify:
+    - Restart Samba services
+
+- name: Start Samba service(s)
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items: "{{ samba_services }}"
+
+- debug:
+    msg: "{{ user_passwd }}"
+
+- name: Create Samba users if they don't exist yet
+  shell: >
+    set -o nounset -o pipefail -o errexit &&
+    (pdbedit --user={{ item.username }} 2>&1 > /dev/null) \
+    || (echo {{ user_passwd }}; echo {{ user_passwd }}) \
+    | smbpasswd -s -a {{ item.username }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ samba_users }}"
+#  no_log: true
+  register: create_user_output
+  changed_when: "'Added user' in create_user_output.stdout"

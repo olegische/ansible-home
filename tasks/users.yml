@@ -5,8 +5,8 @@
   shell: openssl rand -base64 48
   register: user_passwd_reg
 
-  set_fact:
 - name: Set '{{ item.username }}' user password variable
+  set_fact:
     user_passwd: "{{ user_passwd_reg.stdout }}"
     cacheable: no
   when: user_passwd_reg is succeeded
@@ -17,26 +17,17 @@
     name: "{{ item.username }}"
     comment: "{{ item.gecos }}"
     shell: "{{ item.shell }}"
-    create_home: yes
+    create_home: "{{ item.home }}"
     password: "{{ user_passwd | password_hash('sha512') }}"
-    update_password: on_create
+    update_password: "{{ item.update_pass }}"
   when: password_fact_set is succeeded
 
-- name: Update remote ansible user password and add auth keys
-  block:
-  - name: Update '{{ item.username }}' user password
-    user:
-      name: "{{ item.username }}"
-      password: "{{ user_passwd | password_hash('sha512') }}"
-      update_password: always
-
-  - name: Set authorized keys for remote ansible user
-    authorized_key:
-      user: "{{ item.username }}"
-      state: present
-      key: "{{ lookup('file', '/home/{{ item.username }}/.ssh/id_rsa.pub', errors='ignore') }}"
-    ignore_errors: yes
-# END Update remote ansible user password and add auth keys
+- name: Set authorized keys for remote ansible user
+  authorized_key:
+    user: "{{ item.username }}"
+    state: present
+    key: "{{ lookup('file', '/home/{{ item.username }}/.ssh/id_rsa.pub', errors='ignore') }}"
+  ignore_errors: yes
   when: item.username == 'ansible'
   tags:
     - ansible

@@ -1,0 +1,219 @@
+# Samba configuration -- Managed by Ansible, please don't edit manually
+
+#======================= Global Settings =======================
+
+[global]
+
+## Browsing/Identification ###
+
+# Change this to the workgroup/NT-domain name your Samba server will part of
+   workgroup = {{ samba_workgroup | default('WORKGROUP') }}
+
+# Windows Internet Name Serving Support Section:
+# WINS Support - Tells the NMBD component of Samba to enable its WINS Server
+#   wins support = {{ samba_wins_support | ternary('yes', 'no') }}
+
+# WINS Server - Tells the NMBD components of Samba to be a WINS Client
+# Note: Samba can be either a WINS Server, or a WINS Client, but NOT both
+;   wins server = w.x.y.z
+
+# This will prevent nmbd to search for NetBIOS names through DNS.
+   dns proxy = {{ samba_dns_proxy | ternary('yes', 'no') }}
+
+#### Networking ####
+
+# The specific set of interfaces / networks to bind to
+# This can be either the interface name or an IP address/netmask;
+# interface names are normally preferred
+   interfaces = {{ samba_interfaces | join(' ') }}
+
+# Only bind to the named interfaces and/or networks; you must use the
+# 'interfaces' option above to use this.
+# It is recommended that you enable this feature if your Samba machine is
+# not protected by a firewall or is a firewall itself.  However, this
+# option cannot handle dynamic or non-broadcast interfaces correctly.
+   bind interfaces only = {{ samba_bind_interfaces_only | ternary('yes', 'no') }}
+
+#### Debugging/Accounting ####
+
+{% if samba_log is defined %}
+# This tells Samba to use a separate log file for each machine
+# that connects
+   log file = {{ samba_log | default('/var/log/samba/log.%m') }}
+
+# Cap the size of the individual log files (in KiB).
+   max log size = {{ samba_log_size | default('1000') }}
+
+# We want Samba to only log to /var/log/samba/log.{smbd,nmbd}.
+# Append syslog@1 if you want important messages to be sent to syslog too.
+   logging = file
+
+{% else %}
+   logging = syslog
+
+{% endif %}
+# Do something sensible when Samba crashes: mail the admin a backtrace
+   panic action = /usr/share/samba/panic-action %d
+
+####### Authentication #######
+
+# Server role. Defines in which mode Samba will operate. Possible
+# values are "standalone server", "member server", "classic primary
+# domain controller", "classic backup domain controller", "active
+# directory domain controller". 
+#
+# Most people will want "standalone server" or "member server".
+# Running as "active directory domain controller" will require first
+# running "samba-tool domain provision" to wipe databases and create a
+# new domain.
+   server role = standalone server
+
+   obey pam restrictions = yes
+
+# This boolean parameter controls whether Samba attempts to sync the Unix
+# password with the SMB password when the encrypted SMB password in the
+# passdb is changed.
+   unix password sync = yes
+
+# For Unix password sync to work on a Debian GNU/Linux system, the following
+# parameters must be set (thanks to Ian Kahan <<kahan@informatik.tu-muenchen.de> for
+# sending the correct chat script for the passwd program in Debian Sarge).
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+
+# This boolean controls whether PAM will be used for password changes
+# when requested by an SMB client instead of the program listed in
+# 'passwd program'. The default is 'no'.
+   pam password change = yes
+
+# This option controls how unsuccessful authentication attempts are mapped
+# to anonymous connections
+   map to guest = bad user
+
+########## Domains ###########
+
+#
+# The following settings only takes effect if 'server role = primary
+# classic domain controller', 'server role = backup domain controller'
+# or 'domain logons' is set 
+#
+
+# It specifies the location of the user's
+# profile directory from the client point of view) The following
+# required a [profiles] share to be setup on the samba server (see
+# below)
+;   logon path = \\%N\profiles\%U
+# Another common choice is storing the profile in the user's home directory
+# (this is Samba's default)
+#   logon path = \\%N\%U\profile
+
+# The following setting only takes effect if 'domain logons' is set
+# It specifies the location of a user's home directory (from the client
+# point of view)
+;   logon drive = H:
+#   logon home = \\%N\%U
+
+# The following setting only takes effect if 'domain logons' is set
+# It specifies the script to run during logon. The script must be stored
+# in the [netlogon] share
+# NOTE: Must be store in 'DOS' file format convention
+;   logon script = logon.cmd
+
+# This allows Unix users to be created on the domain controller via the SAMR
+# RPC pipe.  The example command creates a user account with a disabled Unix
+# password; please adapt to your needs
+; add user script = /usr/sbin/adduser --quiet --disabled-password --gecos "" %u
+
+# This allows machine accounts to be created on the domain controller via the 
+# SAMR RPC pipe.  
+# The following assumes a "machines" group exists on the system
+; add machine script  = /usr/sbin/useradd -g machines -c "%u machine account" -d /var/lib/samba -s /bin/false %u
+
+# This allows Unix groups to be created on the domain controller via the SAMR
+# RPC pipe.  
+; add group script = /usr/sbin/addgroup --force-badname %g
+
+############ Misc ############
+
+# Using the following line enables you to customise your configuration
+# on a per machine basis. The %m gets replaced with the netbios name
+# of the machine that is connecting
+;   include = /home/samba/etc/smb.conf.%m
+
+# Some defaults for winbind (make sure you're not using the ranges
+# for something else.)
+;   idmap config * :              backend = tdb
+;   idmap config * :              range   = 3000-7999
+;   idmap config YOURDOMAINHERE : backend = tdb
+;   idmap config YOURDOMAINHERE : range   = 100000-999999
+;   template shell = /bin/bash
+
+# Setup usershare options to enable non-root users to share folders
+# with the net usershare command.
+
+# Maximum number of usershare. 0 means that usershare is disabled.
+#   usershare max shares = 100
+
+# Allow users who've been granted usershare privileges to create
+# public shares, not just authenticated ones
+   usershare allow guests = yes
+
+#======================= Share Definitions =======================
+
+{% if samba_load_homes %}
+[homes]
+   comment = Home Directories
+   browseable = no
+
+# By default, the home directories are exported read-only. Change the
+# next parameter to 'no' if you want to be able to write to them.
+   read only = yes
+
+# File creation mask is set to 0700 for security reasons. If you want to
+# create files with group=rw permissions, set next parameter to 0775.
+   create mask = 0700
+
+# Directory creation mask is set to 0700 for security reasons. If you want to
+# create dirs. with group=rw permissions, set next parameter to 0775.
+   directory mask = 0700
+
+# By default, \\server\username shares can be connected to by anyone
+# with access to the samba server.
+# The following parameter makes sure that only "username" can connect
+# to \\server\username
+# This might need tweaking when using external authentication schemes
+   valid users = %S
+
+{% endif %}
+{% if samba_shares | length > 0 %}
+## Shared directories
+{% for share in samba_shares %}
+[{{ share.name }}]
+{% if share.comment is defined %}
+  comment = {{ share.comment }}
+{% endif %}
+  path = {{ share.path }}
+;  public = {{ share.public|default('no') }}
+{% if share.valid_users is defined %}
+  valid users= {{ share.valid_users }}
+{% endif %}
+{% if share.write_list is defined %}
+  write list = {{ share.write_list }}
+{% endif %}
+{% if share.group is defined %}
+  force group = {{ share.group }}
+{% endif %}
+{% if share.guest_ok is defined %}
+  guest ok = {{ share.guest_ok }}
+{% endif %}
+{% if share.browsable is defined %}
+  browsable = {{ share.browsable }}
+{% endif %}
+{% if share.writable is defined %}
+  writable = {{ share.writable }}
+{% endif %}
+  create mask = {{ share.create_mask | default('0744') }}
+  directory mask = {{ share.directory_mask | default('0755') }}
+
+{% endfor %}
+{% endif%}
